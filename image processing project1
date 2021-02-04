@@ -1,0 +1,479 @@
+import skimage.viewer
+import skimage.io 
+from skimage import io ,  color
+goruntu_yukleme=input("Lütfen yüklemek istediğiniz görüntüyü giriniz: ")
+# read image
+image = skimage.io.imread(fname=goruntu_yukleme)
+# display image
+viewer = skimage.viewer.ImageViewer(image)
+skimage.io.imsave(fname="image.jpg",arr=image)
+skimage.io.imsave(fname="orjinal.jpg",arr=image)
+viewer.show()
+#iki boyutlu görüntülerde işlem yapan filtreler için siyah-beyaz forma dönüştürüp kaydettim
+gri=color.rgb2gray(image)
+skimage.io.imsave(fname="gri.jpg", arr=gri)
+islem=0
+while(True):
+    print("İşlemler Menüsü:")
+    print('Yapmak istediğiniz işlemi seçiniz:'
+      '\n1.Görüntü İyileştirme İşlemleri, Filtreler'
+       '\n2.Histogram Görüntüleme ve Eşitleme'
+      '\n3.Uzaysal Dönüşüm İşlemleri '
+      '\n4.Yoğunluk Dönüşümü İşlemleri '
+      ' \n5.Morfolojik İşlemler' 
+      ' \n6.Active Contour'
+      ' \n7.Instagram'
+      ' \n8.Video İşleme'
+      ' \n0.Çıkış')
+
+    islem=int(input("Yapmak istediğiniz işlemi giriniz:"))
+    
+    if (islem==1):
+        while(True):
+            
+            print('Filtreler:'
+              '\n1.Gabor'
+              '\n2.Tresholding'
+              '\n3.Window'
+              '\n4.Difference of gaussians'
+              '\n5.Treshold triangle'
+              '\n6.Median'
+              '\n7.Prewitt'
+              '\n8.Autolevel'
+              '\n9.Bottomhat'
+              '\n10.Entropy'
+              '\n11.Equalize'
+              '\n00.Çıkış')
+            efekt=int(input("Uygulamak istediğiniz filtreyi seçiniz:"))
+            if(efekt==1):
+            
+                #Gabor
+                from skimage.filters import gabor
+                from matplotlib import pyplot as plt
+                image = gri
+                filt_real, filt_imag = gabor(image, frequency=1.0)
+                plt.figure()            
+                io.imshow(filt_real)    
+                io.show() 
+                skimage.io.imsave(fname="image.jpg",arr=filt_real)
+                
+            if(efekt==2):
+                #tresholding
+                from skimage.filters import threshold_local
+                binary_image1 = image > threshold_local(image, 15, 'mean')
+                func = lambda arr: arr.mean()
+                io.imshow(binary_image1)    
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=binary_image1)
+                
+            if(efekt==3):
+                #window
+                import matplotlib.pyplot as plt
+                import numpy as np
+                from scipy.fftpack import fft2, fftshift
+                from skimage import img_as_float
+                from skimage.color import rgb2gray
+                image=image
+                from skimage.filters import window
+                image = img_as_float(rgb2gray(image))
+                wimage = image * window('hann', image.shape)        
+                image_f = np.abs(fftshift(fft2(image)))
+                wimage_f = np.abs(fftshift(fft2(wimage)))
+
+                fig, axes = plt.subplots(2, 2, figsize=(8, 8))
+                ax = axes.ravel()
+                ax[0].set_title("Original image")
+                ax[0].imshow(image, cmap='gray')
+                ax[1].set_title("Windowed image")
+                ax[1].imshow(wimage, cmap='gray')
+                ax[2].set_title("Original FFT (frequency)")
+                ax[2].imshow(np.log(image_f), cmap='magma')
+                ax[3].set_title("Window + FFT (frequency)")
+                ax[3].imshow(np.log(wimage_f), cmap='magma')
+                plt.show()
+                skimage.io.imsave(fname="image.jpg",arr=wimage)
+        
+            if(efekt==4):
+                #Difference of gaussians        
+                from skimage.filters import difference_of_gaussians
+                filtered_image = difference_of_gaussians(image, 2, 200,multichannel=True)
+                io.imshow(filtered_image)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=filtered_image)
+        
+        
+            if(efekt==5):
+                #Threshold triangle     
+                from skimage.filters import threshold_triangle
+                image = image
+                thresh = threshold_triangle(image)
+                binary = image > thresh
+                io.imshow(thresh)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=thresh)
+        
+            if(efekt==6):
+                #median        
+                from skimage.morphology import disk
+                from skimage.filters import median
+                img = gri
+                med = median(img, disk(5))
+                io.imshow(med)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=med)
+                
+            if(efekt==7):
+                #prewitt        
+                from skimage import filters
+                camera = image
+                edges = filters.prewitt(camera)
+                io.imshow(edges)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=edges)
+                
+            if(efekt==8):
+                #autolevel        
+                from skimage.morphology import disk
+                from skimage.filters.rank import autolevel
+                img = gri
+                auto = autolevel(img, disk(5))
+                io.imshow(auto)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=auto)
+        
+            if(efekt==9):
+                #bottomhat        
+                from skimage.morphology import disk
+                from skimage.filters.rank import bottomhat
+                img = gri
+                out = bottomhat(img, disk(5)) 
+                io.imshow(out)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=out)
+        
+            if(efekt==10):
+                #entropy        
+                from skimage.filters.rank import entropy
+                from skimage.morphology import disk
+                img = gri
+                ent = entropy(img, disk(7))
+                io.imshow(ent)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=ent)
+        
+            if(efekt==11):
+                #equalize       
+                from skimage.morphology import disk
+                from skimage.filters.rank import equalize
+                img = gri
+                equ = equalize(img, disk(5))
+                io.imshow(equ)
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=equ)
+        
+            if efekt==00:break
+    
+    
+    if (islem==2):
+        from skimage import  io 
+        from skimage import exposure
+        I = image 
+        io.imshow(I) 
+        io.show()
+        I_eq = exposure.equalize_hist(I)
+        io.imshow(I_eq) 
+        io.show()
+        
+    
+    if(islem==3):
+        while(True):
+            print('Uzaysal Dönüşüm İşlemleri:'
+                  '\n1.Resizing'
+                  '\n2.Rotation'
+                  '\n3.Swirl'
+                  '\n4.Cropping'
+                  '\n5.Warp Polar'
+                  '\n6.Çıkış')
+            uzaysal=int(input("Yapmak istediğiniz Uzaysal Dönüşüm İşlemini seçiniz:"))
+            if(uzaysal==1):
+                #resizing
+                from skimage.transform import resize        
+                RS=resize(image, (50, 50))
+                io.imshow(RS) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=RS)
+                
+            
+            if(uzaysal==2):
+                #rotation     
+                from skimage.transform import rotate        
+                IR = rotate(image, 175)
+                io.imshow(IR) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=IR)
+                
+            if(uzaysal==3):
+                #swirl        
+                from skimage.transform import swirl        
+                swirled = swirl(image, rotation=0, strength=10, radius=250)
+                io.imshow(swirled) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=swirled)
+            if(uzaysal==4):
+                #cropping        
+                from skimage.util import crop
+                import matplotlib.pylab as plt
+                cropped = crop(image, ((50, 100), (50, 50), (0,0)), copy=False)
+                print(image.shape, cropped.shape)
+                plt.figure(figsize=(20,10))
+                plt.subplot(121), plt.imshow(image), plt.axis('off') 
+                plt.subplot(122), plt.imshow(cropped), plt.axis('off') 
+                plt.show()
+                skimage.io.imsave(fname="image.jpg",arr=cropped)
+                
+            if(uzaysal==5):
+                #warp_polar
+                from skimage.transform import warp_polar
+                image = gri
+                warpedd = warp_polar(image)
+                io.imshow(warpedd) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=warpedd)
+                
+            if uzaysal==6:break
+    
+    
+    if(islem==4):
+        while(True):
+            print('Yoğunluk Dönüşüm İşlemleri:'
+                  '\n1.Negatif'
+                  '\n2.Gamma'
+                  '\n3.Çıkış')
+            yogunluk=int(input("Yapmak istediğiniz Yoğunluk Dönüşüm İşlemini giriniz: "))
+            if(yogunluk==1):
+                #negatif
+                degisken=int(input("Negatif değişkenini giriniz[1-255]: "))
+                negative = degisken - image
+                io.imshow(negative) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=negative)
+            if(yogunluk==2):
+                #gamma
+                from skimage import  exposure, img_as_float
+                image = img_as_float(gri)
+                degisken1=int(input("Gamma değişkeninin giriniz: "))
+                gamma_corrected = exposure.adjust_gamma(image, degisken1)
+                io.imshow(gamma_corrected) 
+                io.show()
+                skimage.io.imsave(fname="image.jpg",arr=gamma_corrected)
+            if yogunluk==3:break
+       
+        
+    
+    if(islem==5):
+        while(True):
+            print('Morfolojik İşlemler:'
+                  '\n1.Max Tree'
+                  '\n2.Convex Hull'
+                  '\n3.Skeletonize'
+                  '\n4.Morphological Thinned'
+                  '\n5.Çıkış')
+            morfolojik=int(input("Yapmak istediğiniz Morfolojik İşlemi giriniz: "))
+            if(morfolojik==1):
+                #max_tree
+                import numpy as np
+                from skimage.morphology import max_tree
+                image = np.array([[15, 13, 16], [12, 12, 10], [16, 12, 14]])
+                P, S = max_tree(image, connectivity=2)
+                print(P,S)
+                io.imshow(image) 
+                io.show()
+                
+        
+            if(morfolojik==2):
+                #convex hull
+                import matplotlib.pyplot as plt
+                
+                from skimage.morphology import convex_hull_image
+                from skimage import  img_as_float
+                from skimage.util import invert
+
+            
+                image = invert(gri)
+                
+                chull = convex_hull_image(gri)
+                
+                fig, axes = plt.subplots(1, 2, figsize=(8, 4))
+                ax = axes.ravel()
+
+                ax[0].set_title('Original picture')
+                ax[0].imshow(image, cmap=plt.cm.gray)
+                ax[0].set_axis_off()
+                
+                ax[1].set_title('Transformed picture')
+                ax[1].imshow(chull, cmap=plt.cm.gray)
+                ax[1].set_axis_off()
+            
+                plt.tight_layout()
+                plt.show()
+            
+            if(morfolojik==3):
+        
+                #skeletonize
+                import matplotlib.pyplot as plt
+                from skimage.morphology import skeletonize
+                skeleton = skeletonize(gri)
+                skeleton_lee = skeletonize(gri, method='lee')
+                
+                fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
+                ax = axes.ravel()
+                
+                ax[0].imshow(gri, cmap=plt.cm.gray)
+                ax[0].set_title('original')
+                ax[0].axis('off')
+                
+                ax[1].imshow(skeleton_lee, cmap=plt.cm.gray)
+                ax[1].set_title('skeletonize (Lee 94)')
+                ax[1].axis('off')
+                
+                fig.tight_layout()
+                plt.show()
+                
+                
+            if(morfolojik==4):        
+                #morphological thinned
+                from skimage.morphology import skeletonize, thin
+                
+                skeleton = skeletonize(gri)
+                thinned = thin(gri)
+                thinned_partial = thin(gri, max_iter=25)
+                
+                fig, axes = plt.subplots(1, 2, figsize=(8, 8), sharex=True, sharey=True)
+                ax = axes.ravel()
+                
+                ax[0].imshow(gri, cmap=plt.cm.gray)
+                ax[0].set_title('original')
+                ax[0].axis('off')
+        
+        
+                ax[1].imshow(thinned_partial, cmap=plt.cm.gray)
+                ax[1].set_title('partially thinned')
+                ax[1].axis('off')
+
+                fig.tight_layout()
+                plt.show()
+                
+        
+       
+    
+    
+    
+    
+    
+    if(islem==6):
+        
+        
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from skimage.color import rgb2gray
+        from skimage.filters import gaussian
+        from skimage.segmentation import active_contour
+
+        # Test scipy version, since active contour is only possible
+        # with recent scipy version
+        import scipy
+        split_version = scipy.__version__.split('.')
+        if not(split_version[-1].isdigit()): # Remove dev string if present
+            split_version.pop()
+        scipy_version = list(map(int, split_version))
+        new_scipy = scipy_version[0] > 0 or \
+            (scipy_version[0] == 0 and scipy_version[1] >= 14)
+
+        img = image
+        img = rgb2gray(img)
+
+        s = np.linspace(0, 2*np.pi, 400)
+        x = 250 + 200*np.cos(s)
+        y = 120 + 100*np.sin(s)
+        init = np.array([x, y]).T
+
+    
+
+        if new_scipy:
+            snake = active_contour(gaussian(img, 3),
+                           init, alpha=0.015, beta=10, gamma=0.001)
+
+            fig = plt.figure(figsize=(7, 7))
+            ax = fig.add_subplot(111)
+            plt.gray()
+            ax.imshow(img)
+            ax.plot(init[:, 0], init[:, 1], '--r', lw=3)
+            ax.plot(snake[:, 0], snake[:, 1], '-b', lw=3)
+            ax.set_xticks([]), ax.set_yticks([])
+            ax.axis([0, img.shape[1], img.shape[0], 0])
+            
+            
+    
+    if(islem==7):
+       #window
+       import matplotlib.pyplot as plt
+       import numpy as np
+       from scipy.fftpack import fft2, fftshift
+       from skimage import img_as_float
+       from skimage.color import rgb2gray
+       image=image
+       from skimage.filters import window
+       image = img_as_float(rgb2gray(image))
+       wimage = image * window('hann', image.shape)   
+       #rotate
+       from skimage.transform import rotate        
+       IR = rotate(wimage, 100)
+       
+             
+       #Gabor
+       from skimage.filters import gabor
+       from matplotlib import pyplot as plt
+       image = IR
+       filt_real, filt_imag = gabor(image, frequency=2)
+       plt.figure()            
+       io.imshow(filt_real)    
+       io.show()  
+       
+       
+        
+        
+        
+       
+    if(islem==8):
+        import cv2, time
+        import numpy as np
+        cap = cv2.VideoCapture(0)
+        while (1):
+            ret, frame = cap.read()
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            lower_red = np.array([10, 100, 10])
+            upper_red = np.array([255, 255, 180])
+            mask = cv2.inRange(hsv, lower_red, upper_red)
+            res = cv2.bitwise_and(frame, frame, mask=mask)
+            cv2.imshow('Original', frame)
+            edges = cv2.Canny(frame, 100, 200)
+            cv2.imshow('Edges', edges)
+            k = cv2.waitKey(5) & 0xFF
+            if k == 27:
+                break
+    cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
+    cap.release()
+    break
+       
+       
+        
+        
+       
+            
+    if islem==0:break
+
+        
+        
+        
